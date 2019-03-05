@@ -6,6 +6,7 @@ var logger = require('morgan');
 var sassMiddleware = require('node-sass-middleware');
 const mongoose = require('mongoose');
 require('dotenv').config();
+const cors = require('cors');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -13,10 +14,24 @@ var messageRouter = require('./routes/message');
 
 var app = express();
 
+// Socket.io
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+
+io.on('connection', function (socket) {
+  console.log('a user connected');
+  socket.on('New message', message=> io.emit('New message', message));
+});
+
+http.listen(4001, function () {
+  console.log('listening on *:4001')
+});
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -26,7 +41,7 @@ app.use(sassMiddleware({
   dest: path.join(__dirname, 'public'),
   indentedSyntax: false, // true = .sass and false = .scss
   sourceMap: true,
-  debug: true,
+  debug: true
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 

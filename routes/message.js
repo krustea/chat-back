@@ -9,7 +9,7 @@ router.post('/', function(req, res) {
 });
 
 router.get('/',(req, res)=>{
-   Message.find()
+   Message.find().sort('-createdAt')
        .then(messages=>res.json(messages))
        .catch(err=> console.log(err))
 });
